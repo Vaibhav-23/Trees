@@ -108,63 +108,39 @@ ll power(ll a, ll b, ll mod)
 }
 ll modularInverse(ll number, ll mod){return power(number, mod - 2, mod);}
 //end of modular stuff
+void dfs(int curr,int parent,v2d &adj,v1d &ans){
+    int subTree = 1;
+    for(auto neighbour : adj[curr]){
+        if(neighbour!=parent){
+            dfs(neighbour,curr,adj,ans);
+            subTree+=ans[neighbour];
+        }
+    }
+    ans[curr]=subTree;
+}
 void solve(){
-    int n,k;
-    cin>>n>>k;
+    int n;
+    cin>>n;
     v2d adj(n+1);
-    //as it unrooted tree we cant start from any random because after sometime it cant also go and there would be no point
-
-    //also if doing dfs/bfs every time and finding the leaves would cost heavily n*k which is not better
-
-    //better starting from leaves marking them as level 1 and going up from them is a better solution
-
-    //here level[i] mainains the level at which this node goes of or gets deleted rem is used for computing levels
-
-    //rem represents the number of nodes still attached to it
-
-    v1d level(n+1),rem(n+1);
-    for(int i=1;i<n;i++){
-        int u,v;
-        cin>>u>>v;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-        rem[u]++;
-        rem[v]++;
+    for(int i=2;i<=n;i++){
+        int u;
+        cin>>u;
+        adj[u].push_back(i);
+        adj[i].push_back(u);
     }
-    queue<int> q;
+    v1d ans(n+1);
+    dfs(1,-1,adj,ans);
     for(int i=1;i<=n;i++){
-        if(rem[i]==1){
-            q.push(i);
-            level[i]=1;
-        }
+        cout<<ans[i]-1<<" ";
     }
-
-    while(!q.empty()){
-        auto leaf = q.front();
-        q.pop();
-        for(int neighbour: adj[leaf]){
-            if(rem[neighbour]!=1){
-                rem[neighbour]--;
-                if(rem[neighbour]==1){
-                    //this means that in the next iteration this is going to get removed as there are 
-                    q.push(neighbour);
-                    level[neighbour]=level[leaf]+1;
-                }
-            }
-        }
-    }
-    int ans=0;
-    for(int i=1;i<=n;i++){
-        if(level[i]>k) ans++;
-    }
-    print(ans);
+    cout<<endl;
 }
 
 signed main(){
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    int t;
-    cin>>t;
+    int t=1;
+    // cin>>t;
     while(t){
         t--;
         solve();

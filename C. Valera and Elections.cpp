@@ -108,63 +108,43 @@ ll power(ll a, ll b, ll mod)
 }
 ll modularInverse(ll number, ll mod){return power(number, mod - 2, mod);}
 //end of modular stuff
+bool dfs(int curr,int parent,bool flag,vector<vector<pair<int,int>>> &adj,v1d &ans){
+    bool apoint=0;
+    for(auto neighbour : adj[curr]){
+        if(neighbour.first!=parent){
+            int x = dfs(neighbour.first,curr,neighbour.second==2,adj,ans);
+            apoint |= x;
+        }
+    }
+    if(flag && !apoint){
+        ans.push_back(curr);
+        apoint=1;
+    }
+    return apoint;
+}
+
 void solve(){
-    int n,k;
-    cin>>n>>k;
-    v2d adj(n+1);
-    //as it unrooted tree we cant start from any random because after sometime it cant also go and there would be no point
-
-    //also if doing dfs/bfs every time and finding the leaves would cost heavily n*k which is not better
-
-    //better starting from leaves marking them as level 1 and going up from them is a better solution
-
-    //here level[i] mainains the level at which this node goes of or gets deleted rem is used for computing levels
-
-    //rem represents the number of nodes still attached to it
-
-    v1d level(n+1),rem(n+1);
+    int n;
+    cin>>n;
+    vector<vector<pair<int,int>>> adj(n+1);
     for(int i=1;i<n;i++){
-        int u,v;
-        cin>>u>>v;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-        rem[u]++;
-        rem[v]++;
+        int u,v,t;
+        cin>>u>>v>>t;
+        adj[u].push_back({v,t});
+        adj[v].push_back({u,t});
     }
-    queue<int> q;
-    for(int i=1;i<=n;i++){
-        if(rem[i]==1){
-            q.push(i);
-            level[i]=1;
-        }
-    }
-
-    while(!q.empty()){
-        auto leaf = q.front();
-        q.pop();
-        for(int neighbour: adj[leaf]){
-            if(rem[neighbour]!=1){
-                rem[neighbour]--;
-                if(rem[neighbour]==1){
-                    //this means that in the next iteration this is going to get removed as there are 
-                    q.push(neighbour);
-                    level[neighbour]=level[leaf]+1;
-                }
-            }
-        }
-    }
-    int ans=0;
-    for(int i=1;i<=n;i++){
-        if(level[i]>k) ans++;
-    }
-    print(ans);
+    v1d ans;
+    bool flag = false;
+    dfs(1,-1,flag,adj,ans);
+    print(ans.size());
+    debug(ans);
 }
 
 signed main(){
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    int t;
-    cin>>t;
+    int t=1;
+    // cin>>t;
     while(t){
         t--;
         solve();

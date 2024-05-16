@@ -108,63 +108,57 @@ ll power(ll a, ll b, ll mod)
 }
 ll modularInverse(ll number, ll mod){return power(number, mod - 2, mod);}
 //end of modular stuff
+
+//if any one of neighbour or current one is 0 then no need to delete this node
+
+//If a node can be deleted then it can be deleted or else it cant be deleted
+void dfs(int curr,int parent,v2d &adj,v1d &ans,v1d &c){
+    bool flag=true;
+    if(parent==-1 || c[curr]==0) flag=false;
+    for(auto neighbour : adj[curr]){
+        if(neighbour!=parent){
+            dfs(neighbour,curr,adj,ans,c);
+            if(c[neighbour]==0) flag=false;
+        }
+    }
+    if(flag){
+        ans.push_back(curr);
+    }
+}
 void solve(){
-    int n,k;
-    cin>>n>>k;
+    int n;
+    cin>>n;
     v2d adj(n+1);
-    //as it unrooted tree we cant start from any random because after sometime it cant also go and there would be no point
-
-    //also if doing dfs/bfs every time and finding the leaves would cost heavily n*k which is not better
-
-    //better starting from leaves marking them as level 1 and going up from them is a better solution
-
-    //here level[i] mainains the level at which this node goes of or gets deleted rem is used for computing levels
-
-    //rem represents the number of nodes still attached to it
-
-    v1d level(n+1),rem(n+1);
-    for(int i=1;i<n;i++){
-        int u,v;
-        cin>>u>>v;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-        rem[u]++;
-        rem[v]++;
-    }
-    queue<int> q;
+    v1d c(n+1);
+    int root;
     for(int i=1;i<=n;i++){
-        if(rem[i]==1){
-            q.push(i);
-            level[i]=1;
+        int u;
+        cin>>u>>c[i];
+        if(u==-1){
+            root=i;
+            continue;
         }
+        else{
+            adj[u].push_back(i);
+            adj[i].push_back(u);
+        }     
     }
-
-    while(!q.empty()){
-        auto leaf = q.front();
-        q.pop();
-        for(int neighbour: adj[leaf]){
-            if(rem[neighbour]!=1){
-                rem[neighbour]--;
-                if(rem[neighbour]==1){
-                    //this means that in the next iteration this is going to get removed as there are 
-                    q.push(neighbour);
-                    level[neighbour]=level[leaf]+1;
-                }
-            }
-        }
-    }
-    int ans=0;
-    for(int i=1;i<=n;i++){
-        if(level[i]>k) ans++;
-    }
-    print(ans);
+    // for(int i=1;i<=n;i++){
+    //     debug(adj[i]);
+    // }
+    // debug(c);
+    v1d ans;
+    dfs(root,-1,adj,ans,c);
+    sort(all(ans));
+    if(ans.size()==0) print(-1);
+    else debug(ans);
 }
 
 signed main(){
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    int t;
-    cin>>t;
+    int t=1;
+    // cin>>t;
     while(t){
         t--;
         solve();
